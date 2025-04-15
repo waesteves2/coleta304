@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agende sua Coleta - Rodonaves</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        :root {
+            --primary: #003087;
+            --secondary: #E30613;
+            --background: #F8FAFC;
+            --text: #1F2937;
+            --white: #FFFFFF;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --accent: #3B82F6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #E5E7EB, #D1D5DB);
+            min-height: 100vh;
+            padding: 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px var(--shadow);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header img {
+            max-width: 200px;
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 2px 4px var(--shadow));
+        }
+
+        .form-section {
+            padding: 24px;
+            border-bottom: 1px solid #E5E7EB;
+            transition: transform 0.3s ease;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2 i {
+            color: var(--secondary);
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        label i {
+            color: var(--accent);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--background);
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.2);
+            background: var(--white);
+            transform: scale(1.01);
+        }
+
+        button[type="submit"] {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 300px;
+            margin: 32px auto;
+            padding: 14px;
+            background: var(--secondary);
+            color: var(--white);
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button[type="submit"]:hover {
+            background: #C50511;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(227, 6, 19, 0.4);
+        }
+
+        button[type="submit"]::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        button[type="submit"]:active::after {
+            opacity: 1;
+        }
+
+        #status {
+            margin: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .success {
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid #BBF7D0;
+            display: block;
+        }
+
+        .error {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FECACA;
+            display: block;
+        }
+
+        /* Estilização do Flatpickr */
+        .flatpickr-calendar {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .flatpickr-day.today {
+            border-color: var(--accent);
+        }
+
+        /* Animações */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                border-radius: 12px;
+            }
+
+            .header img {
+                max-width: 160px;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            input {
+                font-size: 0.95rem;
+                padding: 10px 14px;
+            }
+
+            button[type="submit"] {
+                max-width: 100%;
+                font-size: 1rem;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header img {
+                max-width: 300px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            input {
+                font-size: 0.9rem;
+            }
+
+            button[type="submit"] {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://waesteves2.github.io/frete-territorio/rte.png" alt="Rodonaves Logo">
+        </div>
+        
+        <form id="pickupForm">
+            <div class="form-section">
+                <h2><i class="fas fa-user"></i> Remetente</h2>
+                <div class="form-group">
+                    <label><i class="fas fa-id-card"></i> CNPJ</label>
+                    <input type="text" id="senderTaxId" placeholder="00.000.000/0000-00" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-building"></i> Razão Social</label>
+                    <input type="text" id="senderDescription" placeholder="Nome da empresa" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-map-marker-alt"></i> Endereço de Coleta</h2>
+                <div class="form-group">
+                    <label><i class="fas fa-mail-bulk"></i> CEP</label>
+                    <input type="text" id="pickupCep" placeholder="00000-000" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-road"></i> Tipo de Logradouro</label>
+                    <input type="text" id="pickupTypeAddress" placeholder="Rua, Avenida, etc." required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map"></i> Logradouro</label>
+                    <input type="text" id="pickupAddress" placeholder="Nome da rua" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-sort-numeric-up"></i> Número</label>
+                    <input type="text" id="pickupNumber" placeholder="123" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-city"></i> Bairro</label>
+                    <input type="text" id="pickupDistrict" placeholder="Nome do bairro" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-map-pin"></i> Cidade</label>
+                    <input type="text" id="pickupCity" placeholder="Nome da cidade" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-flag"></i> UF</label>
+                    <input type="text" id="pickupUF" placeholder="SP" required>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-info-circle"></i> Informações Gerais</h2>
+                <div class="form-group">
+                    <label><i class="fas fa-user-circle"></i> Nome do Contato</label>
+                    <input type="text" id="contactName" placeholder="Nome completo" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Telefone de Contato</label>
+                    <input type="text" id="contactPhone" placeholder="(00) 00000-0000" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-alt"></i> Data e Hora do Agendamento</label>
+                    <input type="text" id="scheduleDate" placeholder="Selecione a data" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-comment"></i> Observação</label>
+                    <input type="text" id="comment" placeholder="Informações adicionais">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2><i class="fas fa-box"></i> Informações da Mercadoria</h2>
+                <div class="form-group" style="display: none;">
+                    <label><i class="fas fa-dollar-sign"></i> Valor da NF (R$)</label>
+                    <input type="number" step="0.01" id="invoiceValue" value="0.001" hidden required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-boxes"></i> Total de Pacotes</label>
+                    <input type="number" id="totalPacks" placeholder="1" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-weight-hanging"></i> Peso Total (kg)</label>
+                    <input type="number" step="0.1" id="totalWeight" placeholder="0.0" required>
+                </div>
+            </div>
+
+            <button type="submit"><i class="fas fa-check-circle"></i> Agendar Coleta</button>
+            <div id="status"></div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script>
+        // Máscaras de entrada
+        $('#senderTaxId').mask('00.000.000/0000-00');
+        $('#pickupCep').mask('00000-000');
+        $('#contactPhone').mask('(00) 00000-0000');
+
+        // Função para verificar se é dia útil (segunda a sexta)
+        function isBusinessDay(date) {
+            const day = date.getDay();
+            return day !== 0 && day !== 6;
+        }
+
+        // Função para obter o próximo dia útil
+        function getNextBusinessDay(date) {
+            const nextDay = new Date(date);
+            nextDay.setDate(date.getDate() + 1);
+            while (!isBusinessDay(nextDay)) {
+                nextDay.setDate(nextDay.getDate() + 1);
+            }
+            return nextDay;
+        }
+
+        // Função para formatar data para o formato ISO
+        function formatDateToISO(date) {
+            const pad = (num) => String(num).padStart(2, '0');
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+        }
+
+        // Configurar a data mínima para o Flatpickr
+        function getMinDate() {
+            const now = new Date();
+            const cutoffHour = 15;
+
+            let minDate;
+            if (now.getHours() >= cutoffHour) {
+                minDate = getNextBusinessDay(now);
+                minDate.setHours(8, 0, 0, 0);
+            } else {
+                minDate = now;
+            }
+            return minDate;
+        }
+
+        // Função para determinar os dias permitidos com base na cidade
+        function getEnabledDays(city) {
+            if (!city) return (date) => isBusinessDay(date);
+
+            const normalizedCity = city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+            if (['bocaina', 'mineiros do tiete', 'itapui'].includes(normalizedCity)) {
+                return (date) => [1, 3, 5].includes(date.getDay());
+            } else if (normalizedCity === 'boraceia') {
+                return (date) => date.getDay() === 3;
+            } else if (normalizedCity === 'torrinha') {
+                return (date) => [2, 4].includes(date.getDay());
+            }
+            return (date) => isBusinessDay(date);
+        }
+
+        // Inicializar o Flatpickr
+        let flatpickrInstance;
+        function initializeFlatpickr(city) {
+            const minDate = getMinDate();
+            const enableDays = getEnabledDays(city);
+
+            if (flatpickrInstance) {
+                flatpickrInstance.destroy();
+            }
+
+            flatpickrInstance = flatpickr('#scheduleDate', {
+                enableTime: true,
+                dateFormat: 'd/m/Y H:i',
+                minDate: minDate,
+                maxTime: '11:40',
+                enable: [enableDays],
+                locale: {
+                    firstDayOfWeek: 0,
+                    weekdays: {
+                        shorthand: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+                        longhand: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+                    },
+                    months: {
+                        shorthand: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                        longhand: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+                    },
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    const statusDiv = document.getElementById('status');
+                    if (selectedDates.length === 0) return;
+
+                    const selectedDate = selectedDates[0];
+                    const city = document.getElementById('pickupCity').value;
+                    const validationError = validateCitySchedule(city, selectedDate);
+                    if (validationError) {
+                        statusDiv.className = 'error';
+                        statusDiv.textContent = validationError;
+                        statusDiv.style.display = 'block';
+                        instance.clear();
+                    } else {
+                        statusDiv.className = '';
+                        statusDiv.textContent = '';
+                        statusDiv.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Função para validar as condições especiais de agendamento por cidade
+        function validateCitySchedule(city, selectedDate) {
+            if (!city) return 'O campo cidade é obrigatório.';
+
+            const dayOfWeek = selectedDate.getDay();
+            const hours = selectedDate.getHours();
+            const minutes = selectedDate.getMinutes();
+            const timeInMinutes = hours * 60 + minutes;
+            const maxTime = 11 * 60 + 40;
+
+            const normalizedCity = city.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            const cityDisplayNames = {
+                'bocaina': 'BOCAINA',
+                'mineiros do tiete': 'MINEIROS DO TIETE',
+                'itapui': 'ITAPUI',
+                'boraceia': 'BORACEIA',
+                'torrinha': 'TORRINHA'
+            };
+            const displayCity = cityDisplayNames[normalizedCity] || city.toUpperCase();
+
+            if (['bocaina', 'mineiros do tiete', 'itapui'].includes(normalizedCity)) {
+                if (![1, 3, 5].includes(dayOfWeek)) {
+                    return `Agendamentos para ${displayCity} só podem ser feitos para segunda, quarta ou sexta-feira.`;
+                }
+                if (timeInMinutes > maxTime) {
+                    return `Agendamentos para ${displayCity} só podem ser feitos até as 11:40.`;
+                }
+            } else if (normalizedCity === 'boraceia') {
+                if (dayOfWeek !== 3) {
+                    return `Agendamentos para ${displayCity} só podem ser feitos para quarta-feira.`;
+                }
+                if (timeInMinutes > maxTime) {
+                    return `Agendamentos para ${displayCity} só podem ser feitos até as 11:40.`;
+                }
+            } else if (normalizedCity === 'torrinha') {
+                if (![2, 4].includes(dayOfWeek)) {
+                    return `Agendamentos para ${displayCity} só podem ser feitos para terça ou quinta-feira.`;
+                }
+                if (timeInMinutes > maxTime) {
+                    return `Agendamentos para ${displayCity} só podem ser feitos até as 11:40.`;
+                }
+            }
+
+            return null;
+        }
+
+        // Atualizar o Flatpickr sempre que a cidade mudar
+        document.getElementById('pickupCity').addEventListener('input', (e) => {
+            const city = e.target.value;
+            initializeFlatpickr(city);
+        });
+
+        // Busca automática de CNPJ ao digitar
+        document.getElementById('senderTaxId').addEventListener('input', async (e) => {
+            const cnpj = e.target.value.replace(/\D/g, '');
+            if (cnpj.length === 14) {
+                try {
+                    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || 'CNPJ não encontrado');
+                    }
+
+                    document.getElementById('senderDescription').value = data.razao_social || '';
+                    document.getElementById('pickupCep').value = data.cep?.replace(/\D/g, '') || '';
+                    document.getElementById('pickupTypeAddress').value = data.tipo_logradouro || '';
+                    document.getElementById('pickupAddress').value = data.logradouro || '';
+                    document.getElementById('pickupNumber').value = data.numero || '';
+                    document.getElementById('pickupDistrict').value = data.bairro || '';
+                    document.getElementById('pickupCity').value = data.municipio || '';
+                    document.getElementById('pickupUF').value = data.uf || '';
+                    document.getElementById('contactPhone').value = data.ddd_telefone_1 || '';
+                    document.getElementById('contactName').value = data.descricao_situacao_cadastral === 'ATIVA' ? 'Contato Principal' : '';
+
+                    const city = document.getElementById('pickupCity').value;
+                    initializeFlatpickr(city);
+                } catch (error) {
+                    const statusDiv = document.getElementById('status');
+                    statusDiv.className = 'error';
+                    statusDiv.textContent = 'Erro ao buscar CNPJ: ' + error.message;
+                    statusDiv.style.display = 'block';
+                }
+            }
+        });
+
+        // Busca automática de CEP ao digitar
+        document.getElementById('pickupCep').addEventListener('input', async (e) => {
+            const cep = e.target.value.replace(/\D/g, '');
+            if (cep.length === 8) {
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    const data = await response.json();
+                    
+                    if (data.erro) {
+                        const statusDiv = document.getElementById('status');
+                        statusDiv.className = 'error';
+                        statusDiv.textContent = 'CEP não encontrado';
+                        statusDiv.style.display = 'block';
+                        return;
+                    }
+
+                    document.getElementById('pickupTypeAddress').value = data.logradouro.split(' ')[0] || '';
+                    document.getElementById('pickupAddress').value = data.logradouro.split(' ').slice(1).join(' ') || '';
+                    document.getElementById('pickupDistrict').value = data.bairro || '';
+                    document.getElementById('pickupCity').value = data.localidade || '';
+                    document.getElementById('pickupUF').value = data.uf || '';
+
+                    const city = document.getElementById('pickupCity').value;
+                    initializeFlatpickr(city);
+                } catch (error) {
+                    const statusDiv = document.getElementById('status');
+                    statusDiv.className = 'error';
+                    statusDiv.textContent = 'Erro ao buscar CEP: ' + error.message;
+                    statusDiv.style.display = 'block';
+                }
+            }
+        });
+
+        async function renewToken() {
+            const authOptions = {
+                method: "POST",
+                headers: { "content-type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                    auth_type: "DEV",
+                    grant_type: "password",
+                    username: "ADORAIND",
+                    password: "DVNJQOYP"
+                })
+            };
+
+            try {
+                const response = await fetch("https://pickup-apigateway.rte.com.br/token", authOptions);
+                const text = await response.text();
+                if (!response.ok) throw new Error(`Erro ao renovar token: ${response.status} - ${text}`);
+                if (!text) throw new Error("Resposta da API de token está vazia");
+                const data = JSON.parse(text);
+                return data.access_token;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function schedulePickup(pickupData, accessToken) {
+            const options = {
+                method: "POST",
+                headers: {
+                    "accept": "application/json",
+                    "content-type": "application/json",
+                    "Authorization": `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(pickupData)
+            };
+
+            try {
+                const response = await fetch("https://pickup-apigateway.rte.com.br/api/v1/pickup", options);
+                const text = await response.text();
+                if (!text) throw new Error("Resposta da API está vazia");
+                const data = JSON.parse(text);
+
+                if (!response.ok) {
+                    throw new Error(`Erro ${response.status}: ${data.error?.message || 'Erro desconhecido'}`);
+                }
+
+                return { status: response.status, data };
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        document.getElementById('pickupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const statusDiv = document.getElementById('status');
+    statusDiv.textContent = "Processando...";
+    statusDiv.className = 'success';
+    statusDiv.style.display = 'block';
+    statusDiv.style.animation = 'pulse 1s infinite';
+
+    const now = new Date();
+    const scheduleDateInput = document.getElementById('scheduleDate').value;
+    if (!scheduleDateInput) {
+        statusDiv.className = 'error';
+        statusDiv.textContent = 'Por favor, selecione uma data e hora para o agendamento.';
+        statusDiv.style.display = 'block';
+        statusDiv.style.animation = 'none';
+        return;
+    }
+
+    const [day, month, year, hour, minute] = scheduleDateInput.split(/[/ :]/);
+    const selectedDate = new Date(year, month - 1, day, hour, minute);
+
+    const cutoffHour = 15;
+    const city = document.getElementById('pickupCity').value;
+
+    if (
+        selectedDate.toDateString() === now.toDateString() &&
+        now.getHours() >= cutoffHour
+    ) {
+        statusDiv.className = 'error';
+        statusDiv.textContent = 'Agendamento para o mesmo dia só é permitido até as 15:00. Escolha uma data futura.';
+        statusDiv.style.display = 'block';
+        statusDiv.style.animation = 'none';
+        return;
+    }
+
+    if (!isBusinessDay(selectedDate)) {
+        statusDiv.className = 'error';
+        statusDiv.textContent = 'Agendamentos só podem ser feitos para dias úteis (segunda a sexta).';
+        statusDiv.style.display = 'block';
+        statusDiv.style.animation = 'none';
+        return;
+    }
+
+    const cityValidationError = validateCitySchedule(city, selectedDate);
+    if (cityValidationError) {
+        statusDiv.className = 'error';
+        statusDiv.textContent = cityValidationError;
+        statusDiv.style.display = 'block';
+        statusDiv.style.animation = 'none';
+        return;
+    }
+
+    const pickupData = {
+        CustomerTaxIdRegistration: document.getElementById('senderTaxId').value.replace(/\D/g, ''),
+        Sender: {
+            UnitFederation: document.getElementById('pickupUF').value,
+            Person: {
+                TaxIdRegistration: document.getElementById('senderTaxId').value.replace(/\D/g, ''),
+                Description: document.getElementById('senderDescription').value
+            }
+        },
+        Payer: {
+            UnitFederation: document.getElementById('pickupUF').value,
+            Person: {
+                TaxIdRegistration: document.getElementById('senderTaxId').value.replace(/\D/g, ''),
+                Description: document.getElementById('senderDescription').value
+            }
+        },
+        PickupAddress: {
+            Cep: document.getElementById('pickupCep').value.replace(/\D/g, ''),
+            TypeAddress: document.getElementById('pickupTypeAddress').value,
+            Address: document.getElementById('pickupAddress').value,
+            Number: document.getElementById('pickupNumber').value,
+            Supplement: "",
+            District: document.getElementById('pickupDistrict').value,
+            City: document.getElementById('pickupCity').value,
+            UnitFederation: document.getElementById('pickupUF').value,
+            TaxIdRegistration: document.getElementById('senderTaxId').value.replace(/\D/g, ''),
+            LocSit: "Normal"
+        },
+        Recipient: {
+            UnitFederation: document.getElementById('pickupUF').value,
+            Person: {
+                TaxIdRegistration: document.getElementById('senderTaxId').value.replace(/\D/g, ''),
+                Description: document.getElementById('senderDescription').value
+            }
+        },
+        DestinationAddress: {
+            Cep: document.getElementById('pickupCep').value.replace(/\D/g, ''),
+            TypeAddress: document.getElementById('pickupTypeAddress').value,
+            Address: document.getElementById('pickupAddress').value,
+            Number: document.getElementById('pickupNumber').value,
+            Supplement: "",
+            District: document.getElementById('pickupDistrict').value,
+            City: document.getElementById('pickupCity').value,
+            UnitFederation: document.getElementById('pickupUF').value
+        },
+        ContactName: document.getElementById('contactName').value,
+        ContactPhoneNumber: document.getElementById('contactPhone').value.replace(/\D/g, ''),
+        PickupServiceType: 2,
+        ExternalQuotationId: 0,
+        ScheduleDate: selectedDate.toISOString(),
+        Comment: document.getElementById('comment').value,
+        RegisterSource: 2,
+        PackInformation: {
+            TotalWeight: parseFloat(document.getElementById('totalWeight').value),
+            EletronicInvoiceValue: parseFloat(document.getElementById('invoiceValue').value),
+            TotalPacks: parseInt(document.getElementById('totalPacks').value),
+            PackageType: 1,
+            Packs: [{
+                AmountPackages: parseInt(document.getElementById('totalPacks').value),
+                Weight: parseFloat(document.getElementById('totalWeight').value),
+                Length: 1.0,
+                Height: 1.0,
+                Width: 1.0
+            }]
+        }
+    };
+
+    // Validações adicionais
+    try {
+        if (!pickupData.CustomerTaxIdRegistration || pickupData.CustomerTaxIdRegistration.length !== 14) {
+            throw new Error('CNPJ inválido');
+        }
+        if (!pickupData.PickupAddress.Cep || pickupData.PickupAddress.Cep.length !== 8) {
+            throw new Error('CEP inválido');
+        }
+        if (!pickupData.ContactPhoneNumber || pickupData.ContactPhoneNumber.length < 10) {
+            throw new Error('Telefone inválido');
+        }
+        if (isNaN(pickupData.PackInformation.TotalWeight) || pickupData.PackInformation.TotalWeight <= 0) {
+            throw new Error('Peso total inválido');
+        }
+        if (isNaN(pickupData.PackInformation.EletronicInvoiceValue) || pickupData.PackInformation.EletronicInvoiceValue <= 0) {
+            throw new Error('Valor da NF inválido');
+        }
+        if (isNaN(pickupData.PackInformation.TotalPacks) || pickupData.PackInformation.TotalPacks <= 0) {
+            throw new Error('Total de pacotes inválido');
+        }
+
+        console.log('Dados enviados para a API:', JSON.stringify(pickupData, null, 2));
+        const accessToken = await renewToken();
+        const result = await schedulePickup(pickupData, accessToken);
+        
+        console.log("Resposta da API:", result.data);
+        const protocol = result.data.data.FreightProtocol || 'Não disponível'; // Ajuste aqui para acessar o nível correto
+        console.log("Protocolo capturado:", protocol); // Log para debug
+
+        statusDiv.className = 'success';
+        statusDiv.textContent = `Coleta agendada, Protocolo ${protocol}`;
+        statusDiv.style.display = 'block';
+        statusDiv.style.animation = 'none';
+    } catch (err) {
+        console.error('Erro ao processar:', err);
+        statusDiv.className = 'error';
+        statusDiv.textContent = `Erro ao agendar coleta: ${err.message}`;
+        statusDiv.style.display = 'block';
+        statusDiv.style.animation = 'none';
+    }
+});
+
+        // Inicializar o Flatpickr ao carregar a página
+        window.addEventListener('load', () => {
+            const city = document.getElementById('pickupCity').value;
+            initializeFlatpickr(city);
+        });
+    </script>
+</body>
+</html>
